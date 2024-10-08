@@ -3,8 +3,8 @@ import { searchAndSortUsers } from "../../utils/api";
 import { handleError } from "../../utils/errorHandler";
 import SearchInput from "../SearchInput/SearchInput";
 import SortButton from "../SortButton/SortButton";
-import UserList from "../userList/userList";
 import Pagination from "../pagination/pagination";
+import UserList from "../userList/UserList";
 
 const Search = () => {
   const [query, setQuery] = useState("");
