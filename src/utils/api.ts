@@ -14,11 +14,16 @@ export const fetchUsers = async (query: string, page: number) => {
       },
     }
   );
+
   if (!response.ok) {
     throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
   }
+
   const data = await response.json();
-  return data.items;
+  return {
+    items: data.items,
+    totalCount: data.total_count,
+  };
 };
 
 export const fetchUserDetails = async (username: string) => {
@@ -36,9 +41,10 @@ export const fetchUserDetails = async (username: string) => {
 export const getUsersWithRepoCount = async (
   query: string,
   page: number
-): Promise<User[]> => {
-  const users: User[] = await fetchUsers(query, page);
-  const filteredUsers = users.filter((user) =>
+): Promise<{ users: User[]; totalCount: number }> => {
+  const { items, totalCount } = await fetchUsers(query, page);
+
+  const filteredUsers = items.filter((user: User) =>
     user.login.toLowerCase().startsWith(query.toLowerCase())
   );
 
@@ -52,8 +58,9 @@ export const getUsersWithRepoCount = async (
     })
   );
 
-  return usersWithDetails;
+  return { users: usersWithDetails, totalCount };
 };
+
 export const sortUsersByRepos = (
   users: User[],
   order: "asc" | "desc" = "asc"
@@ -69,18 +76,18 @@ export const searchAndSortUsers = async (
   query: string,
   page: number,
   order: "asc" | "desc" = "asc"
-): Promise<User[]> => {
+): Promise<{ users: User[]; totalCount: number }> => {
   try {
-    const usersWithRepos = await getUsersWithRepoCount(query, page);
+    const { users, totalCount } = await getUsersWithRepoCount(query, page);
 
-    if (!Array.isArray(usersWithRepos)) {
+    if (!Array.isArray(users)) {
       throw new Error("Ошибка: данные о пользователях не получены");
     }
 
-    const sortedUsers = sortUsersByRepos(usersWithRepos, order);
-    return sortedUsers;
+    const sortedUsers = sortUsersByRepos(users, order);
+    return { users: sortedUsers, totalCount };
   } catch (error) {
     console.error("Ошибка при поиске и сортировке пользователей:", error);
-    return [];
+    return { users: [], totalCount: 0 };
   }
 };

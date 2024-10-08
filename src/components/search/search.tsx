@@ -14,7 +14,7 @@ const Search = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
-  const totalUsers = 50;
+  const [totalUsers, setTotalUsers] = useState(0);
 
   useEffect(() => {
     if (query) {
@@ -26,12 +26,13 @@ const Search = () => {
     setLoading(true);
     setError(null);
     try {
-      const sortedUsers = await searchAndSortUsers(
+      const { users, totalCount } = await searchAndSortUsers(
         query,
         currentPage,
         sortOrder
       );
-      setUsers(sortedUsers);
+      setUsers(users);
+      setTotalUsers(totalCount);
     } catch (error) {
       setError(handleError(error));
     } finally {
