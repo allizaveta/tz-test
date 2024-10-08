@@ -7,7 +7,7 @@ const token = import.meta.env.VITE_GITHUB_TOKEN;
 
 export const fetchUsers = async (query: string, page: number) => {
   const response = await fetch(
-    `https://api.github.com/search/users?q=${query}&page=${page}&per_page=10`,
+    `https://api.github.com/search/users?q=${query}&page=${page}&per_page=100`,
     {
       headers: {
         Authorization: `token ${token}`,
@@ -39,10 +39,9 @@ export const fetchUserDetails = async (username: string) => {
 };
 
 export const getUsersWithRepoCount = async (
-  query: string,
-  page: number
+  query: string
 ): Promise<{ users: User[]; totalCount: number }> => {
-  const { items, totalCount } = await fetchUsers(query, page);
+  const { items } = await fetchUsers(query, 1);
 
   const filteredUsers = items.filter((user: User) =>
     user.login.toLowerCase().startsWith(query.toLowerCase())
@@ -58,7 +57,7 @@ export const getUsersWithRepoCount = async (
     })
   );
 
-  return { users: usersWithDetails, totalCount };
+  return { users: usersWithDetails, totalCount: usersWithDetails.length };
 };
 
 export const sortUsersByRepos = (
@@ -78,14 +77,17 @@ export const searchAndSortUsers = async (
   order: "asc" | "desc" = "asc"
 ): Promise<{ users: User[]; totalCount: number }> => {
   try {
-    const { users, totalCount } = await getUsersWithRepoCount(query, page);
+    const { users, totalCount } = await getUsersWithRepoCount(query);
 
     if (!Array.isArray(users)) {
       throw new Error("Ошибка: данные о пользователях не получены");
     }
 
     const sortedUsers = sortUsersByRepos(users, order);
-    return { users: sortedUsers, totalCount };
+    const startIndex = (page - 1) * 10;
+    const paginatedUsers = sortedUsers.slice(startIndex, startIndex + 10);
+
+    return { users: paginatedUsers, totalCount };
   } catch (error) {
     console.error("Ошибка при поиске и сортировке пользователей:", error);
     return { users: [], totalCount: 0 };
