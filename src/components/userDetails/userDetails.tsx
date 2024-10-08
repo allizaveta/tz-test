@@ -23,7 +23,9 @@ const UserDetails: React.FC<userDetailsProps> = ({ user, onClose }) => {
           </a>
         </p>
         <p>Количество репозиториев: {user.public_repos ?? 0}</p>
-        <button onClick={onClose}>Закрыть</button>
+        <button className={styles.btn} onClick={onClose}>
+          Закрыть
+        </button>
       </div>
     </div>
   );
