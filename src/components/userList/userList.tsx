@@ -1,20 +1,37 @@
-import React from "react";
+import React, { useState } from "react";
+import UserDetails from "../userDetails/userDetails";
 
 interface UserListProps {
   users: any[];
 }
 
 const UserList: React.FC<UserListProps> = ({ users }) => {
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+
+  const handleUserClick = (user: any) => {
+    setSelectedUser(user);
+  };
+
+  const handleClosePopUp = () => {
+    setSelectedUser(null);
+  };
   return (
-    <ul>
-      {users.map((user) => (
-        <li key={user.login}>
-          <a href={user.html_url} target="_blank" rel="noopener noreferrer">
+    <>
+      <ul>
+        {users.map((user) => (
+          <li
+            key={user.id}
+            onClick={() => handleUserClick(user)}
+            style={{ cursor: "pointer" }}
+          >
             {user.login}
-          </a>
-        </li>
-      ))}
-    </ul>
+          </li>
+        ))}
+      </ul>
+      {selectedUser && (
+        <UserDetails user={selectedUser} onClose={handleClosePopUp} />
+      )}
+    </>
   );
 };
 
