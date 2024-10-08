@@ -12,19 +12,25 @@ const Search = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
+  const totalUsers = 50;
 
   useEffect(() => {
     if (query) {
       fetchUsersData();
     }
-  }, [query, sortOrder, page]);
+  }, [query, sortOrder, currentPage]);
 
   const fetchUsersData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const sortedUsers = await searchAndSortUsers(query, page, sortOrder);
+      const sortedUsers = await searchAndSortUsers(
+        query,
+        currentPage,
+        sortOrder
+      );
       setUsers(sortedUsers);
     } catch (error) {
       setError(handleError(error));
@@ -45,7 +51,12 @@ const Search = () => {
       {loading && <p>Загрузка...</p>}
       {error && <p>{error}</p>}
       <UserList users={users} />
-      <Pagination currentPage={page} onPageChange={setPage} />
+      <Pagination
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+        totalUsers={totalUsers}
+        usersPerPage={usersPerPage}
+      />
     </div>
   );
 };

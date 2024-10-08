@@ -1,12 +1,9 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 interface User {
   login: string;
   public_repos?: number;
 }
 
-const token = process.env.GITHUB_TOKEN;
+const token = import.meta.env.VITE_GITHUB_TOKEN;
 
 export const fetchUsers = async (query: string, page: number) => {
   const response = await fetch(
@@ -36,14 +33,17 @@ export const fetchUserDetails = async (username: string) => {
   return await response.json();
 };
 
-const getUsersWithRepoCount = async (
+export const getUsersWithRepoCount = async (
   query: string,
   page: number
 ): Promise<User[]> => {
   const users: User[] = await fetchUsers(query, page);
+  const filteredUsers = users.filter((user) =>
+    user.login.toLowerCase().startsWith(query.toLowerCase())
+  );
 
   const usersWithDetails = await Promise.all(
-    users.map(async (user: User) => {
+    filteredUsers.map(async (user: User) => {
       const userDetails = await fetchUserDetails(user.login);
       return {
         ...user,
@@ -54,7 +54,6 @@ const getUsersWithRepoCount = async (
 
   return usersWithDetails;
 };
-
 export const sortUsersByRepos = (
   users: User[],
   order: "asc" | "desc" = "asc"
