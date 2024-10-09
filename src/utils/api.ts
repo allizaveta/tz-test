@@ -41,14 +41,10 @@ export const fetchUserDetails = async (username: string) => {
 export const getUsersWithRepoCount = async (
   query: string
 ): Promise<{ users: User[]; totalCount: number }> => {
-  const { items } = await fetchUsers(query, 1);
-
-  const filteredUsers = items.filter((user: User) =>
-    user.login.toLowerCase().startsWith(query.toLowerCase())
-  );
+  const { items, totalCount } = await fetchUsers(query, 1);
 
   const usersWithDetails = await Promise.all(
-    filteredUsers.map(async (user: User) => {
+    items.map(async (user: User) => {
       const userDetails = await fetchUserDetails(user.login);
       return {
         ...user,
@@ -57,7 +53,7 @@ export const getUsersWithRepoCount = async (
     })
   );
 
-  return { users: usersWithDetails, totalCount: usersWithDetails.length };
+  return { users: usersWithDetails, totalCount };
 };
 
 export const sortUsersByRepos = (

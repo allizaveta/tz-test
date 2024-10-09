@@ -18,3 +18,4 @@ npm install --save-dev jest-environment-jsdom
 npm install identity-obj-proxy --save-dev
 npm i --save-dev @types/jest
 npm test
+:)
